@@ -1,6 +1,5 @@
 #include "startwindow.h"
 #include "ui_startwindow.h"
-#include "funcs.cpp"
 #include <QFileDialog>
 
 StartWindow::StartWindow(QWidget *parent)
@@ -20,7 +19,6 @@ StartWindow::~StartWindow()
 
 void StartWindow::on_pushButton_2_clicked()
 {
-
     auto filename = QFileDialog::getOpenFileName(this, "Open File", "/Documents","pkp files(*.pkp)");
 //работает
 // вместо /Documents можно написать стартовое место окна поиска

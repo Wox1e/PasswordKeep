@@ -1,10 +1,22 @@
 #include "open_pack.h"
 #include "ui_open_pack.h"
 #include <QFile>
-//#include <deque>
 #include <QMessageBox>
 #include <mainwindow.h>
-//#include "startwindow.h"
+#include <SHA256.h>
+#pragma once
+
+
+auto SHA256_encr(QString data)
+
+{
+    SHA256 sh;
+    sh.update(data.toStdString());
+    auto outdata = SHA256::toString(sh.digest()).erase(0,33);
+    return outdata;
+
+}
+
 
 struct element
 {
@@ -15,19 +27,13 @@ struct element
 
 };
 
-auto QGetStringDoubleB64(QString filename){
+auto GetHash(QString filename){
 
 
         QFile file(filename);
         file.open(QIODevice::ReadOnly);
 
-
-    auto f_get = file.readLine();
-    auto ft = QByteArray::fromBase64(f_get);
-    auto ft2 = QByteArray::fromBase64(ft);
-
-
-    return QString::fromStdString(ft2.toStdString());
+        return file.readLine();
 }
 
 
@@ -55,18 +61,37 @@ open_pack::~open_pack()
 
 void open_pack::on_pushButton_clicked()
 {
+    QFile file(filename);
+
+
+
+
+
     qDebug()<<"Getting Data Started...";
     qDebug()<<"_____________";
-    QString correctPassword  = QGetStringDoubleB64(this->filename);
-    if(isCorrect(correctPassword,ui->lineEdit->text())){
+    auto correctHash  = GetHash(this->filename);
+    auto userHash = QString::fromStdString(SHA256_encr(ui->lineEdit->text()));
 
-        QFile file(filename);
-        file.open(QIODevice::ReadOnly);
-std::vector<std::pair<QString,QString>> tmpList;
-std::pair<QString,QString> tmp;
-file.readLine();
+    if(correctHash.size() > 31) correctHash.erase(correctHash.begin() + 31, correctHash.end());
+
+
+    qDebug() << "userHash = "<< userHash;
+    qDebug() << "correctHash = "<< correctHash;
+
+    if(isCorrect(correctHash,userHash)){
+            file.open(QIODevice::ReadOnly);
+        file.readLine();
+
+
+
+    std::vector<std::pair<QString,QString>> tmpList;
+    std::pair<QString,QString> tmp;
+    qDebug() << "Getting Log&Pass";
+
 while (!file.atEnd())
   {
+
+        qDebug() << "-iteration-";
         auto f_get = file.readLine();
         auto ft = QByteArray::fromBase64(f_get);
         auto ft2 = QByteArray::fromBase64(ft);
@@ -77,18 +102,19 @@ while (!file.atEnd())
         auto ft4 = QByteArray::fromBase64(ft3);
 
         tmp.second = ft4;
-     qDebug()<<"login = "<<tmp.first;
-     qDebug()<<"password = "<<tmp.second;
+        qDebug()<<"login = "<<tmp.first;
+        qDebug()<<"password = "<<tmp.second;
         tmpList.push_back(tmp);
   }
 qDebug()<<"_____________";
 
        mainwindow mw;
+        mw.cor_Hash = correctHash;
        mw.setWindowTitle("PasswordKeep");
        qDebug()<<"mainwindow created";
        mw.pList = tmpList;
       // mw.tempLw = mw.AddListWidget();
-       mw.password = correctPassword;
+       //mw.password = correctHash;
        mw.filename = filename;
       // for (auto el : tmpList) {
       //    mw.addElement(el,mw.tempLw);
@@ -97,6 +123,7 @@ qDebug()<<"_____________";
 //Проверить код сверху (получает два логина)
 
 
+       file.close();
 
 
 

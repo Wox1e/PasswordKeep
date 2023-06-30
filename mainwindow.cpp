@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QCloseEvent>
 #include <QClipboard>
+#include "mainwindow_extra.h"
 template <typename T>
 auto moveDeque(std::deque<T>p, int u)
 {
@@ -21,6 +22,9 @@ auto QSavePair_Double(std::pair<QString,QString> p,QString filename){
      file.open(QIODevice::Append);
      //file.WriteOnly;
 
+     qDebug() << "p.first "<<p.first;
+     qDebug() << "p.second "<<p.second;
+
 file.write(p.first.toUtf8().toBase64().toBase64());
 file.write("\n");
 file.write(p.second.toUtf8().toBase64().toBase64());
@@ -33,21 +37,12 @@ file.close();
 
 
 auto QSaveData_Double(QString filename,std::deque<std::pair<QString,QString>> pl,QString pass){
-    QFile file(filename);
-    qDebug()<<"filename = "<<filename;
-    file.open(QIODevice::WriteOnly);
-
-    file.write(pass.toUtf8().toBase64().toBase64());
-    file.write("\n");
-    file.close();
 
     for(auto el:pl){
 
         QSavePair_Double(el,filename);
 
     }
-
-    file.close();
 
 }
 
@@ -301,6 +296,20 @@ void mainwindow::on_pushButton_3_clicked()
 
 void mainwindow::closeEvent(QCloseEvent *event)
 {
+   qDebug() << "closeEvent has called";
+    QFile file(filename);
+    file.open(QIODevice::Append);
+    file.resize(0);
+    qDebug() << "file cleared";
+    qDebug() << "file is open?" << file.isOpen();
+    qDebug()<<"filename = "<<filename;
+    qDebug() <<"hash - "<< this -> cor_Hash;
+
+
+    file.write(this->cor_Hash.toUtf8());
+    file.write("\n");
+    file.close();
+
     std::deque<std::pair<QString,QString>> pairList;
     std::pair<QString,QString> tmp;
 
@@ -310,12 +319,31 @@ void mainwindow::closeEvent(QCloseEvent *event)
        pairList.push_back(tmp);
     }
 
-   // for (auto el : pairList) {
-    //   QSavePair_Double(this->filename,el);
-   // }
+
     QSaveData_Double(this->filename,pairList,password);
 
 
+
 event->accept();
+}
+
+
+void mainwindow::on_toolButton_clicked()
+{
+    mainwindow_extra extra_win;
+
+
+    std::pair<QString,QString> tmp;
+
+    for (auto el : elementList) {
+       tmp.first = el.login;
+       tmp.second = el.password;
+       extra_win.ListOfPair.push_back(tmp);
+    }
+
+
+
+    extra_win.setModal(1);
+    extra_win.exec();
 }
 

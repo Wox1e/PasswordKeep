@@ -34,6 +34,8 @@ private slots:
 
     void on_pushButton_3_clicked();
 
+    void on_toolButton_clicked();
+
 private:
     Ui::mainwindow *ui;
 
@@ -51,6 +53,7 @@ public:
         return ui;
     }
 QString password;
+    QString cor_Hash;
 
 Ui::mainwindow *gui = ui;
 protected:
