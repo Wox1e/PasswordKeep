@@ -29,6 +29,12 @@ set(PROJECT_SOURCES
 
         edit_element.h edit_element.cpp edit_element.ui
 
+
+        SHA256.cpp SHA256.h
+
+        mainwindow_extra.cpp mainwindow_extra.ui mainwindow_extra.h
+
+
   )
 
 
